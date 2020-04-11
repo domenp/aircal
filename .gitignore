@@ -1,0 +1,7 @@
+*.pyc
+/dist/
+/*.egg-info
+/*.egg
+.vscode
+notebooks
+
