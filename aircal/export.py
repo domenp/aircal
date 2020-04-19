@@ -17,15 +17,6 @@ class GCalExporter(object):
         self.max_events_per_day = max_events_per_day
         self.exec_time_tol = exec_time_tol
 
-    def _ignore_too_frequent_events(self):
-        """Skip events that occur too frequently not to overload the calendar."""
-        if not self.max_events_per_day:
-            return self.df_events
-        df_counts = self.df_events.dag_id.value_counts().reset_index()
-        df_counts = df_counts.rename(columns={'index': 'dag_id', 'dag_id': 'counts'})
-        df_counts = df_counts[df_counts.counts < self.n_horizon_days * self.max_events_per_day]
-        return self.df_events.merge(df_counts, on='dag_id').drop(columns=['counts'])
-
     def _get_gcal_events(self):
         now = datetime.utcnow().isoformat() + 'Z'
         events = self.gcal.get_events(now)
@@ -58,7 +49,7 @@ class GCalExporter(object):
     
     def sync_events(self):
         
-        df_elig_events = self._ignore_too_frequent_events()
+        df_elig_events = self.df_events.copy()
         
         df_gcal = self._get_gcal_events()
         df_ov = self._determine_overlap(df_elig_events, df_gcal)
