@@ -74,7 +74,7 @@ class GCalClient(object):
                 'timeZone': 'Etc/UTC',
             }
         }
-        event = service.events().update(calendarId=self.calendar_id, eventId=event_id, body=event).execute()
+        event = self.service.events().update(calendarId=self.calendar_id, eventId=event_id, body=event).execute()
         return event['status']
 
     def do_sync(self, v):
