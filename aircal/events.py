@@ -36,12 +36,16 @@ class DagRunEventsExtractor(object):
 
         If the cron pattern is not recognized an empty list is returned.
         """
-        dates = []
+        if not pattern:
+            return []
+
         pattern = pattern.strip('"')
         try:
             c = croniter(pattern, self.base_date)
         except CroniterBadCronError:
             return []
+
+        dates = []
         while True:
             next_date = c.get_next(datetime)
             if next_date > end_date:
