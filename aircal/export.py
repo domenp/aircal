@@ -10,12 +10,10 @@ DELETE_ACTION = 'delete'
 
 class GCalExporter(object):
 
-    def __init__(self, gcal, df_events, n_horizon_days=10, max_events_per_day=10, exec_time_tol=360):
+    def __init__(self, gcal, df_events, exec_time_diff_tol_seconds=360):
         self.gcal = gcal
         self.df_events = df_events
-        self.n_horizon_days = n_horizon_days
-        self.max_events_per_day = max_events_per_day
-        self.exec_time_tol = exec_time_tol
+        self.exec_time_diff_tol_seconds = exec_time_diff_tol_seconds
 
     def _get_gcal_events(self):
         now = datetime.utcnow().isoformat() + 'Z'
@@ -63,7 +61,7 @@ class GCalExporter(object):
         dfs = [df_to_insert, df_to_delete]
 
         if df_ov[~df_ov.end_date_events.isna()].shape[0] and df_ov[~df_ov.end_date_gcal.isna()].shape[0]:
-            df_to_update = df_ov[(df_ov.end_date_events - df_ov.end_date_gcal).dt.seconds > self.exec_time_tol]
+            df_to_update = df_ov[(df_ov.end_date_events - df_ov.end_date_gcal).dt.seconds > self.exec_time_diff_tol_seconds]
             df_to_update['action'] = UPDATE_ACTION
             dfs.append(df_to_update)
 
