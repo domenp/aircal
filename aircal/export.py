@@ -59,7 +59,7 @@ class GCalExporter(object):
         dfs = [df_to_insert, df_to_delete]
 
         if df_ov[~df_ov.end_date_events.isna()].shape[0] and df_ov[~df_ov.end_date_gcal.isna()].shape[0]:
-            df_to_update = df_ov[(df_ov.end_date_events - df_ov.end_date_gcal).dt.seconds > exec_time_diff_tol_seconds]
+            df_to_update = df_ov[(df_ov.end_date_events - df_ov.end_date_gcal).dt.seconds > exec_time_diff_tol_seconds].copy()
             df_to_update['action'] = UPDATE_ACTION
             dfs.append(df_to_update)
 
