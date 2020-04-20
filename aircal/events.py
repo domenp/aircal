@@ -6,10 +6,9 @@ from croniter import croniter, CroniterBadCronError
 
 class DagRunEventsExtractor(object):
 
-    def __init__(self, airflow_db, base_date=datetime.now(), n_horizon_days=30, n_last_runs=5):
+    def __init__(self, airflow_db, base_date=datetime.now(), n_last_runs=5):
         self.airflow_db = airflow_db
         self.base_date = base_date
-        self.n_horizon_days = n_horizon_days
         self.n_last_runs = n_last_runs
 
     def _estimate_dag_exec_time(self):
@@ -53,15 +52,12 @@ class DagRunEventsExtractor(object):
             dates.append(next_date)
         return dates
 
-    def get_events_df(self):
+    def get_future_dag_runs(self, n_horizon_days=30):
         """Returns data frame containing all upcoming (relative to the base date) DAG runs.
 
         Parameters
         ----------
-        engine : sqlalchemy engine
-        base_date : datetime
         n_horizon_days : int
-        n_last_runs : int
 
         Returns
         -------
@@ -73,7 +69,7 @@ class DagRunEventsExtractor(object):
         df = df_dag.merge(df_exec_time, on='dag_id', how='left')
 
         # generate events from start time to the end of horizon
-        date_end = self.base_date + timedelta(self.n_horizon_days)
+        date_end = self.base_date + timedelta(n_horizon_days)
         df['next_runs'] = df.apply(lambda v: self._next_dag_runs(v.schedule_interval, date_end), axis=1)
 
         # skip entries with no next runs

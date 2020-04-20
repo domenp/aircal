@@ -10,10 +10,8 @@ DELETE_ACTION = 'delete'
 
 class GCalExporter(object):
 
-    def __init__(self, gcal, df_events, exec_time_diff_tol_seconds=360):
+    def __init__(self, gcal):
         self.gcal = gcal
-        self.df_events = df_events
-        self.exec_time_diff_tol_seconds = exec_time_diff_tol_seconds
 
     def _get_gcal_events(self):
         now = datetime.utcnow().isoformat() + 'Z'
@@ -45,9 +43,9 @@ class GCalExporter(object):
         
         return pd.concat([df_new, df_cur], axis=1).reset_index()
     
-    def sync_events(self):
+    def mark_for_sync(self, df_events, exec_time_diff_tol_seconds=360):
         
-        df_elig_events = self.df_events.copy()
+        df_elig_events = df_events.copy()
         
         df_gcal = self._get_gcal_events()
         df_ov = self._determine_overlap(df_elig_events, df_gcal)
@@ -61,15 +59,23 @@ class GCalExporter(object):
         dfs = [df_to_insert, df_to_delete]
 
         if df_ov[~df_ov.end_date_events.isna()].shape[0] and df_ov[~df_ov.end_date_gcal.isna()].shape[0]:
-            df_to_update = df_ov[(df_ov.end_date_events - df_ov.end_date_gcal).dt.seconds > self.exec_time_diff_tol_seconds]
+            df_to_update = df_ov[(df_ov.end_date_events - df_ov.end_date_gcal).dt.seconds > exec_time_diff_tol_seconds]
             df_to_update['action'] = UPDATE_ACTION
             dfs.append(df_to_update)
 
         df_to_sync = pd.concat(dfs)
 
-        if not df_to_sync.empty:
-            df_to_sync['end_date'] = df_to_sync.apply(
-                lambda x: x.end_date_events if x.end_date_events else x.end_date_gcal, axis=1)
-            df_to_sync['error'] = df_to_sync.apply(self.gcal.do_sync, axis=1)
+        if df_to_sync.empty:
+            return df_to_sync
 
-        return df_to_sync.drop(columns=['end_date_events', 'end_date_gcal', 'event_id'])
+        df_to_sync['end_date'] = df_to_sync.apply(
+            lambda x: x.end_date_events if x.end_date_events else x.end_date_gcal, axis=1)
+
+        return df_to_sync.drop(columns=['end_date_events', 'end_date_gcal'])
+
+    def sync(self, df_to_sync):
+        if df_to_sync.empty:
+            return df_to_sync
+
+        df_to_sync['error'] = df_to_sync.apply(self.gcal.do_sync, axis=1)
+        return df_to_sync

@@ -33,10 +33,10 @@ def do_continue(df_events):
 def main(args):
     logger.info('Extracting dag run events.')    
     airflow_db = AirflowDb(create_engine(args.sqlalchemy_conn_string))    
-    extractor = DagRunEventsExtractor(airflow_db, n_horizon_days=args.n_horizon_days, n_last_runs=args.n_last_runs)
+    extractor = DagRunEventsExtractor(airflow_db, n_last_runs=args.n_last_runs)
 
-    # extract future all future DAG runs for the given horizon
-    df_events = extractor.get_events_df()
+    # extract future all future DAG runs as calendar events
+    df_events = extractor.get_future_dag_runs(n_horizon_days=args.n_horizon_days)
     # filter out the ones that are of no interest of you
     # in this case we only keep the ones that are running more than x minutes
     df_events = df_events[df_events.mean_exec_time > timedelta(minutes=args.min_dag_exec_time)]
@@ -45,16 +45,17 @@ def main(args):
 
     logger.info('Syncing to GCal.')
     gcal_client = GCalClient(calendar_id=args.calendar_id, creds_dir=Path(args.creds_path), logger=logger)
-    exporter = GCalExporter(gcal_client, df_events)
-    # sync the calendar state with the freshly retrieved future DAG runs
-    df_updated = exporter.sync_events()
+    exporter = GCalExporter(gcal_client)
+    # identify the DAG runs that needs sync (insert, update, delete)
+    df_to_sync = exporter.mark_for_sync(df_events)
+
+    logger.info('# DAG runs need sync: %d' % df_to_sync.shape[0])
+    df_updated = exporter.sync(df_to_sync)
 
     if not df_updated.empty:
         # save the data frame for inspection
         df_updated.to_csv('event_ops.csv', index=False)
-        logger.info('Sync complete.')
-    else:
-        logger.info('Nothing to sync.')
+        logger.info('%d events synced.' % df_updated.shape[0])
 
 
 if __name__ == '__main__':
