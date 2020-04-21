@@ -63,8 +63,9 @@ class GCalClient(object):
         self.service.events().delete(calendarId=self.calendar_id, eventId=event_id).execute()
         return 'deleted'
 
-    def update_event(self, event_id, start_date, end_date):
+    def update_event(self, event_id, dag_id, start_date, end_date):
         event = {
+            'summary': 'DAG: %s' % dag_id,
             'start': {
                 'dateTime': start_date.strftime('%Y-%m-%dT%H:%M:0'),
                 'timeZone': 'Etc/UTC',
@@ -85,7 +86,7 @@ class GCalClient(object):
                 elif v.action == DELETE_ACTION:
                     self.delete_event(v.event_id)
                 elif v.action == UPDATE_ACTION:
-                    self.update_event(v.event_id, v.start_date, v.end_date)
+                    self.update_event(v.event_id, v.dag_id, v.start_date, v.end_date)
                 else:
                     raise Exception('action not supported')
             except HttpError as ex:
