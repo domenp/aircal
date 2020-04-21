@@ -102,7 +102,7 @@ class GCalClient(object):
             timeMin=base_date, singleEvents=True, orderBy='startTime'
         ).execute()
         events = events_result.get('items', [])
-        elig_events = [v for v in events if v['summary'].startswith(TITLE_PREFIX)]
+        elig_events = [v for v in events if v.get('summary', '').startswith(TITLE_PREFIX)]
         for event in elig_events:
             event['summary'] = event['summary'].replace(TITLE_PREFIX, '').strip()
         return elig_events
