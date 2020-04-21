@@ -14,10 +14,11 @@ TITLE_PREFIX = 'DAG:'
 
 class GCalClient(object):
 
-    def __init__(self, calendar_id, creds_dir, logger):
+    def __init__(self, calendar_id, creds_dir, logger, max_results=2000):
         creds = self._auth(creds_dir)
         self.calendar_id = calendar_id
         self.service = build('calendar', 'v3', credentials=creds)
+        self.max_results = max_results
         self.logger = logger
 
     def _auth(self, creds_dir):
@@ -99,10 +100,14 @@ class GCalClient(object):
 
     def get_events(self, base_date):
         events_result = self.service.events().list(
-            calendarId=self.calendar_id,
+            calendarId=self.calendar_id, maxResults=self.max_results,
             timeMin=base_date, singleEvents=True, orderBy='startTime'
         ).execute()
         events = events_result.get('items', [])
+        if len(events) == self.max_results:
+            raise Exception((
+                '# of retrieved events equals to max results. Some events might be ignored. '
+                'Consider increasing max_results parameter or decrease n_horizon_days.'))
         elig_events = [v for v in events if v.get('summary', '').startswith(TITLE_PREFIX)]
         for event in elig_events:
             event['summary'] = event['summary'].replace(TITLE_PREFIX, '').strip()
