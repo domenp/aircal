@@ -1,9 +1,16 @@
+import pathlib
 from setuptools import setup
+
+BASE_DIR = pathlib.Path(__file__).parent
+README = (BASE_DIR / 'README.md').read_text()
+
 
 setup(
     name='aircal',
     version='0.1',
-    description='Export future airflow DAG runs to (G) calendar',
+    description='Export future airflow DAG runs to Google calendar',
+    long_description=README,
+    long_description_content_type='text/markdown',
     url='http://github.com/domenp/aircal',
     author='Domen Pogacnik',
     license='MIT',
