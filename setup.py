@@ -17,6 +17,7 @@ setup(
         'google-auth-oauthlib',
         'sqlalchemy'
     ],
+    tests_require=['pytest'],
     classifiers=[
         'Programming Language :: Python :: 3',
         'Development Status :: 3 - Alpha',
