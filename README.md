@@ -19,7 +19,11 @@ The library only support DAG schedules that use the standard cron syntax. The re
 
 ## Installation & setup
 
-There's no package available (on PyPi) at the moment so you need to clone this repo and install it locally with the command below:
+```
+pip install aircal
+```
+
+Alternatively you can clone the repo and install it from there:
 
 ```
 pip install -e .
