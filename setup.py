@@ -8,7 +8,7 @@ README = (BASE_DIR / 'README.md').read_text()
 setup(
     name='aircal',
     version='0.1',
-    description='Export future airflow DAG runs to Google calendar',
+    description='Export and visualize Airflow DAG runs as events in Google calendar.',
     long_description=README,
     long_description_content_type='text/markdown',
     url='http://github.com/domenp/aircal',
