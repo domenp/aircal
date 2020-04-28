@@ -2,6 +2,8 @@
 
 Aircal is a library that exports future DAG runs as events to Google Calendar.
 
+![DAG run visualization](https://user-images.githubusercontent.com/6691247/80535228-c28cc700-89a0-11ea-8cdc-0050a3c91298.png)
+
 Having DAG run as events in the calendar may help you:
 - visualize the utilization of your airflow workers to better spread your jobs
 - determine when a certain DAG should be finished to monitor the service.
@@ -15,7 +17,7 @@ Tip: run the sync script regularly, perhaps, with you know, Airflow :)
 
 The library only support DAG schedules that use the standard cron syntax. The rest will be ignored (with a warning).
 
-**Warning: This is an alpha stage software. Expect occassional bugs and rough edges (PR welcome).**
+**Warning: This is an beta stage software. Expect occassional bugs and rough edges (PR welcome).**
 
 ## Installation & setup
 
