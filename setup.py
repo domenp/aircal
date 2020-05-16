@@ -7,7 +7,7 @@ README = (BASE_DIR / 'README.md').read_text()
 
 setup(
     name='aircal',
-    version='0.1.1',
+    version='0.1.2',
     description='Export and visualize Airflow DAG runs as events in Google calendar.',
     long_description=README,
     long_description_content_type='text/markdown',
@@ -27,6 +27,6 @@ setup(
     tests_require=['pytest'],
     classifiers=[
         'Programming Language :: Python :: 3',
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
     ],
     zip_safe=False)
