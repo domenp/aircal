@@ -35,7 +35,7 @@ def main(args):
     airflow_db = AirflowDb(create_engine(args.sqlalchemy_conn_string))    
     extractor = DagRunEventsExtractor(airflow_db, n_last_runs=args.n_last_runs)
 
-    # extract future all future DAG runs as calendar events
+    # extract all future DAG runs as calendar events
     df_events = extractor.get_future_dag_runs(n_horizon_days=args.n_horizon_days)
     # filter out the ones that are of no interest of you
     # in this case we only keep the ones that are running more than x minutes
