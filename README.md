@@ -1,3 +1,5 @@
+Update: The library is not actively maintained. In case of issues, you might be on your own. However, you're free to open a PR :)
+
 # Aircal
 
 This library helps visualizing Airflow's DAG run schedule. It does that by exporting future DAG runs as events to Google Calendar.
